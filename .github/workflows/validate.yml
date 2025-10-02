@@ -12,25 +12,6 @@ permissions:
   pull-requests: write
 
 jobs:
-  commitlint:
-    name: "Commitlint"
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 16
-      - name: Install Dependencies
-        run: npm install @commitlint/config-conventional @commitlint/cli
-      - name: Run Commitlint
-        id: commitlint
-        run: npx commitlint --config .commitlintrc.yaml --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }}
-
   actionlint:
     name: "Linting Actions"
     runs-on: ubuntu-latest
