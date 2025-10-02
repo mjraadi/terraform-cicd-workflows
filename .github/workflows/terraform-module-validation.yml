@@ -103,33 +103,6 @@ permissions:
   pull-requests: write
 
 jobs:
-  commitlint:
-    name: "Commitlint"
-    if: github.event_name == 'pull_request' && inputs.enable-commitlint
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ${{ inputs.working-directory }}
-    outputs:
-      result: ${{ steps.commitlint.outcome }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-      - name: Setup node
-        uses: actions/setup-node@v5
-        with:
-          node-version: 16
-      - name: Install Dependencies
-        run: npm install @commitlint/config-conventional @commitlint/cli
-      - name: Retrieve Commit Configuration
-        run: |
-          wget https://raw.githubusercontent.com/${{ inputs.cicd-repository }}/${{ inputs.cicd-branch }}/config/commitlint.config.js -O commitlint.config.js
-      - name: Run Commitlint
-        id: commitlint
-        run: npx commitlint --config commitlint.config.js --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }}
-
   terraform-format:
     name: "Terraform Format"
     runs-on: ubuntu-latest
@@ -222,7 +195,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v5
         with:
-          node-version: 16
+          node-version: 22
       - name: Terraform Bootstrap
         id: bootstrap
         uses: appvia/appvia-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
@@ -250,7 +223,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v5
         with:
-          node-version: 16
+          node-version: 22
       - name: Terraform Bootstrap
         id: bootstrap
         uses: appvia/appvia-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
@@ -361,7 +334,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v5
         with:
-          node-version: 16
+          node-version: 22
       - name: Terraform Bootstrap
         id: bootstrap
         uses: appvia/appvia-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
@@ -466,7 +439,6 @@ jobs:
       run:
         working-directory: ${{ inputs.working-directory }}
     needs:
-      - commitlint
       - terraform-docs
       - terraform-format
       - terraform-init
@@ -502,7 +474,6 @@ jobs:
             * 🤖 <b>Terraform Validation:</b>           \`${{ needs.terraform-validate.outputs.result }}\`
             * 🤖 <b>Terraform Example Validation:</b>   \`${{ needs.terraform-validate-examples.outputs.result }}\`
             * 📖 <b>Terraform Documentation:</b>        \`${{ needs.terraform-docs.outputs.result }}\`
-            * 🔖 <b>Commitlint:</b>                     \`${{ needs.commitlint.outputs.result }}\`
 
             *<b>Working Directory:</b> \`${{ inputs.working-directory }}\`*
             *<b>Pusher:</b> @${{ github.actor }}, <b>Action:</b> \`${{ github.event_name }}\`*
