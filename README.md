@@ -6,10 +6,8 @@ This repository contains a collection of GitHub Actions workflow templates that 
 
 Please refer to the following documentation for more information on the workflows:
 
-- [Terraform Plan & Apply (AWS)](./docs/terraform-plan-and-apply-aws.md)
 - [Terraform Module Validation](./docs/terraform-module-validation.md)
 - [Terraform Module Release](./docs/terraform-module-release.md)
-- [Terraform Destroy (AWS)](./docs/terraform-destroy.md)
 
 ## How to setup Deployment Protection & Approval
 

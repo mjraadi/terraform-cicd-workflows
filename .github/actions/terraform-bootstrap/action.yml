@@ -1,11 +1,11 @@
-name: 'Terraform bootstrap'
-description: 'Terraform bootstrapping including init'
+name: "Terraform bootstrap"
+description: "Terraform bootstrapping including init"
 inputs:
-  appvia-actions-id:
+  gh-app-id:
     description: "The application ID for the workflow token"
     required: false
     type: string
-  appvia-actions-secret:
+  gh-app-secret:
     description: "The application secret for the workflow token"
     required: false
     type: string
@@ -69,7 +69,7 @@ runs:
     - name: Setup node
       uses: actions/setup-node@v4
       with:
-        node-version: 16
+        node-version: 22
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
@@ -120,8 +120,8 @@ runs:
       if: ${{ inputs.enable-private-access == 'true' }}
       uses: peter-murray/workflow-application-token-action@v4
       with:
-        application_id: ${{ inputs.appvia-actions-id }}
-        application_private_key: ${{ inputs.appvia-actions-secret }}
+        application_id: ${{ inputs.gh-app-id }}
+        application_private_key: ${{ inputs.gh-app-secret }}
         organization: ${{ inputs.organization-name }}
         revoke_token: true
     - name: Setup Credentials
