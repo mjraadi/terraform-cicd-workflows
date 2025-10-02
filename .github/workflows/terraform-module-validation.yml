@@ -42,7 +42,7 @@ on:
         type: boolean
 
       organization-name:
-        default: "appvia"
+        default: "mjraadi"
         description: "The name of the GitHub organization"
         required: false
         type: string
