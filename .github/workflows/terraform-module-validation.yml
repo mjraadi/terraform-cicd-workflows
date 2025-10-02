@@ -3,11 +3,11 @@ name: Terraform Module Validation
 on:
   workflow_call:
     secrets:
-      appvia-actions-secret:
-        description: "Appvia App secret for GH"
+      gh-app-secret:
+        description: "App secret for GH"
         required: false
-      appvia-actions-id:
-        description: "Appvia App ID for GH"
+      gh-app-id:
+        description: "App ID for GH"
         required: false
 
     inputs:
@@ -122,8 +122,8 @@ jobs:
         id: bootstrap
         uses: mjraadi/terraform-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
         with:
-          appvia-actions-id: ${{ secrets.appvia-actions-id }}
-          appvia-actions-secret: ${{ secrets.appvia-actions-secret }}
+          gh-app-id: ${{ secrets.gh-app-id }}
+          gh-app-secret: ${{ secrets.gh-app-secret }}
           enable-private-access: ${{ inputs.enable-private-access }}
           organization-name: ${{ inputs.organization-name }}
           terraform-dir: ${{ inputs.terraform-dir }}
@@ -154,8 +154,8 @@ jobs:
         id: bootstrap
         uses: mjraadi/terraform-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
         with:
-          appvia-actions-id: ${{ secrets.appvia-actions-id }}
-          appvia-actions-secret: ${{ secrets.appvia-actions-secret }}
+          gh-app-id: ${{ secrets.gh-app-id }}
+          gh-app-secret: ${{ secrets.gh-app-secret }}
           enable-private-access: ${{ inputs.enable-private-access }}
           organization-name: ${{ inputs.organization-name }}
           terraform-dir: .
@@ -185,8 +185,8 @@ jobs:
         id: bootstrap
         uses: mjraadi/terraform-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
         with:
-          appvia-actions-id: ${{ secrets.appvia-actions-id }}
-          appvia-actions-secret: ${{ secrets.appvia-actions-secret }}
+          gh-app-id: ${{ secrets.gh-app-id }}
+          gh-app-secret: ${{ secrets.gh-app-secret }}
           enable-private-access: ${{ inputs.enable-private-access }}
           organization-name: ${{ inputs.organization-name }}
           terraform-dir: ${{ inputs.terraform-dir }}
@@ -213,8 +213,8 @@ jobs:
         id: bootstrap
         uses: mjraadi/terraform-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
         with:
-          appvia-actions-id: ${{ secrets.appvia-actions-id }}
-          appvia-actions-secret: ${{ secrets.appvia-actions-secret }}
+          gh-app-id: ${{ secrets.gh-app-id }}
+          gh-app-secret: ${{ secrets.gh-app-secret }}
           enable-private-access: ${{ inputs.enable-private-access }}
           organization-name: ${{ inputs.organization-name }}
           terraform-dir: ${{ inputs.terraform-dir }}
@@ -246,8 +246,8 @@ jobs:
         id: bootstrap
         uses: mjraadi/terraform-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
         with:
-          appvia-actions-id: ${{ secrets.appvia-actions-id }}
-          appvia-actions-secret: ${{ secrets.appvia-actions-secret }}
+          gh-app-id: ${{ secrets.gh-app-id }}
+          gh-app-secret: ${{ secrets.gh-app-secret }}
           enable-private-access: ${{ inputs.enable-private-access }}
           organization-name: ${{ inputs.organization-name }}
           terraform-dir: ${{ inputs.terraform-dir }}
@@ -283,8 +283,8 @@ jobs:
         id: bootstrap
         uses: mjraadi/terraform-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
         with:
-          appvia-actions-id: ${{ secrets.appvia-actions-id }}
-          appvia-actions-secret: ${{ secrets.appvia-actions-secret }}
+          gh-app-id: ${{ secrets.gh-app-id }}
+          gh-app-secret: ${{ secrets.gh-app-secret }}
           enable-private-access: ${{ inputs.enable-private-access }}
           organization-name: ${{ inputs.organization-name }}
           terraform-dir: ${{ inputs.terraform-dir }}
@@ -324,8 +324,8 @@ jobs:
         id: bootstrap
         uses: mjraadi/terraform-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
         with:
-          appvia-actions-id: ${{ secrets.appvia-actions-id }}
-          appvia-actions-secret: ${{ secrets.appvia-actions-secret }}
+          gh-app-id: ${{ secrets.gh-app-id }}
+          gh-app-secret: ${{ secrets.gh-app-secret }}
           enable-private-access: ${{ inputs.enable-private-access }}
           organization-name: ${{ inputs.organization-name }}
           terraform-dir: ${{ inputs.terraform-dir }}
