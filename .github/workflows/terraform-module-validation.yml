@@ -178,9 +178,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
       - name: Setup node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
       - name: Terraform Bootstrap
         id: bootstrap
         uses: mjraadi/terraform-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
@@ -206,9 +206,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
       - name: Setup node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
       - name: Terraform Bootstrap
         id: bootstrap
         uses: mjraadi/terraform-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
@@ -317,9 +317,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
       - name: Setup node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
       - name: Terraform Bootstrap
         id: bootstrap
         uses: mjraadi/terraform-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
