@@ -1,6 +1,6 @@
 ---
-name: Terraform Bootstrap
-description: "Terraform bootstrapping including AWS auth, init with S3 backend"
+name: "Terragrunt Bootstrap"
+description: "Uses the bootstrap the Terragrunt environment"
 inputs:
   actions-id:
     description: "The application ID for the workflow token"
@@ -10,25 +10,25 @@ inputs:
     required: false
   aws-account-id:
     description: "The AWS account ID to deploy to"
-    required: true
+    required: false
   aws-read-role-name:
     description: "Overrides the default behavior, and uses a custom role name for read-only access"
     required: false
-  aws-role:
-    description: "The role to assume"
-    required: true
-  aws-web-identity-token-file:
-    description: "The file to store the web identity token in"
-    required: true
   aws-write-role-name:
     description: "Overrides the default behavior, and uses a custom role name for read-write access"
     required: false
   aws-region:
     description: "The AWS region to deploy to"
+    required: false
+  aws-role:
+    description: "The role to assume"
+    required: false
+  aws-web-identity-token-file:
+    description: "The file to store the web identity token in"
     required: true
   enable-private-access:
-    description: Optional flag to state if terraform requires pulling private modules
-    required: true
+    description: Optional flag to state if terragrunt requires pulling private modules
+    required: false
   environment:
     description: "The environment to deploy to"
     required: false
@@ -39,17 +39,14 @@ inputs:
   organization-name:
     description: "The name of the Github organization"
     required: false
-  terraform-dir:
+  terragrunt-dir:
     description: "The directory to validate"
     required: true
-  terraform-init-extra-args:
-    description: "Extra arguments to pass to terraform init"
-    required: false
-  terraform-state-key:
-    description: "The key of the terraform state (default: <repo-name>.tfstate)"
-    required: false
   terraform-version:
-    description: "The version of terraform to use"
+    description: "The version of terraform or opentofu to use"
+    required: true
+  terragrunt-version:
+    description: "The version of terragrunt to use"
     required: true
   use-env-as-suffix:
     description: "Whether to use the environment as a suffix for the state file and iam roles"
@@ -57,6 +54,7 @@ inputs:
   working-directory:
     description: "The working directory to run the action in"
     required: true
+
 outputs:
   outcome-auth:
     description: "Outcome of the auth step"
@@ -78,13 +76,20 @@ runs:
       with:
         terraform_version: ${{ inputs.terraform-version }}
 
+    - name: Setup Terragrunt
+      uses: gruntwork-io/terragrunt-action@5e86476ca61eaf74adb9c0525745f29f921f2199 # v3
+      with:
+        tg_version: ${{ inputs.terragrunt-version }}
+        tf_path: /bin/terraform
+
     - name: Retrieve Web Identity Token for AWS Authentication
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" | jq -r '.value' > "${{ inputs.aws-web-identity-token-file }}"
+        curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" | jq -r '.value' > "${{ inputs.aws-web-identity-token-file }}"
 
     - name: Determine AWS Role
+      if: ${{ inputs.aws-account-id != '' && inputs.aws-role != '' }}
       id: role
       shell: bash
       run: |
@@ -101,15 +106,17 @@ runs:
         fi
 
     - name: Authenticate with AWS
+      if: ${{ inputs.aws-account-id != '' && inputs.aws-role != '' }}
       id: auth
       uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6
       with:
         aws-region: ${{ inputs.aws-region }}
-        mask-aws-account-id: "true"
         role-session-name: ${{ github.event.repository.name }}
         role-to-assume: arn:aws:iam::${{ inputs.aws-account-id }}:role/${{ steps.role.outputs.name }}
+        mask-aws-account-id: "true"
 
     - name: Set terraform-state-key variable
+      if: ${{ inputs.aws-account-id != '' && inputs.aws-role != '' }}
       id: state-key
       shell: bash
       run: |
@@ -137,15 +144,3 @@ runs:
       shell: bash
       run: |
         git config --global url."https://x-access-token:${{steps.get_workflow_token.outputs.token}}@github.com/".insteadOf "https://github.com/"
-
-    - name: Terraform init
-      id: init
-      shell: bash
-      working-directory: ${{ inputs.working-directory }}
-      run: |
-        terraform -chdir=${{ inputs.terraform-dir }} init \
-          -backend-config="bucket=${{ inputs.aws-account-id }}-${{ inputs.aws-region }}-tfstate" \
-          -backend-config="key=${{ steps.state-key.outputs.name }}" \
-          -backend-config="encrypt=true" \
-          -backend-config="use_lockfile=true" \
-          -backend-config="region=${{ inputs.aws-region }}" ${{ inputs.terraform-init-extra-args }}

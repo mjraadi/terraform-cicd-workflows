@@ -1,8 +1,14 @@
 ---
-name: Terraform Module Release
+name: Release
 
 on:
   workflow_call:
+    inputs:
+      enable-cliff:
+        description: "Indicates if the repository uses cliff for changelog generation"
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   release:
@@ -11,9 +17,36 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
       - name: Clone repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+      - name: Previous Release
+        id: previous_release
+        run: |
+          LAST_TAG=$(git tag --sort=-version:refname | head -n 2 | tail -n 1)
+          echo "LAST_TAG=${LAST_TAG}" >> "${GITHUB_OUTPUT}"
+      - name: Generate Cliff Changelog
+        if: inputs.enable-cliff == true
+        uses: orhun/git-cliff-action@c93ef52f3d0ddcdcc9bd5447d98d458a11cd4f72 # v4
+        with:
+          args: "--verbose ${{ steps.previous_release.outputs.LAST_TAG }}..HEAD"
+          config: .cliff/cliff.toml
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+        env:
+          OUTPUT: CHANGELOG.md
+          GITHUB_REPO: ${{ github.repository }}
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        if: inputs.enable-cliff == true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --latest \
+            --notes-file CHANGELOG.md \
+            --title "Release ${{ github.ref_name }}"
+      - name: Create GitHub Release
+        if: inputs.enable-cliff == false
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2
         with:
           generate_release_notes: true
           token: ${{ secrets.GITHUB_TOKEN }}

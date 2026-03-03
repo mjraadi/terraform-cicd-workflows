@@ -1,0 +1,97 @@
+---
+name: "Template Update"
+description: "Update the template files"
+inputs:
+  base-directory:
+    description: "The base directory to update"
+    required: true
+    default: "."
+  enable-pull-request:
+    description: "Whether to create a pull request"
+    required: true
+  pull-request-title:
+    description: "The title of the pull request"
+    required: false
+    default: ""
+  branch-name:
+    description: "The name of the branch to update"
+    required: false
+    default: ""
+  template-repository:
+    description: "The template repository to update"
+    required: true
+  template-branch:
+    description: "The branch to update"
+    required: false
+    default: main
+  template-files:
+    description: "The template files to update (optionally source:destination format)"
+    required: true
+  upstream-token:
+    description: "The token to used to authenticate with the upstream repository (optional, defaults to github.token)"
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout Upstream Repository
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      with:
+        token: ${{ inputs.upstream-token || github.token }}
+        branch: ${{ inputs.template-branch }}
+        repository: ${{ inputs.template-repository }}
+        path: ./tmp/upstream-template
+    - name: Copying Files from Upstream Repository
+      shell: bash
+      run: |
+        # Process template files - handle both newline and space separated inputs
+        echo "${{ inputs.template-files }}" | while IFS= read -r file; do
+          # Set the source and destination file paths
+          source_file="${file}"
+          destination_file="${{ inputs.base-directory}}/${file}"
+
+          # If the file has a ':', the first part is the source, the second part is the destination
+          if [[ "${file}" == *:* ]]; then
+            source_file="${file%%:*}"
+            destination_file="${file#*:}"
+          fi
+
+          # Skip empty lines
+          if [[ -n "${source_file}" ]]; then
+            if [[ -f "./tmp/upstream-template/${source_file}" ]]; then
+              echo "Copying file ${source_file} from upstream template to ${destination_file}"
+              cp -f "./tmp/upstream-template/${source_file}" "${destination_file}"
+            else 
+              echo "File ${source_file} not found in upstream template"
+            fi
+          fi
+        done
+        # Remove the temporary directory
+        rm -rf ./tmp/upstream-template
+    - name: Check for Changes
+      id: has-changes
+      shell: bash
+      run: |
+        echo "Current directory: $(pwd)"
+
+        changed_files="$(git status --porcelain)"
+        if [[ -n "${changed_files}" ]]; then
+          echo "Changes detected in files:"
+          echo "${changed_files}"
+          echo "has-changes=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "No changes detected in files"
+          echo "has-changes=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Create Pull Request
+      if: steps.has-changes.outputs.has-changes == 'true' && inputs.enable-pull-request == 'true'
+      uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8
+      with:
+        base: main
+        body: "This PR is updating the templates to the latest version inline with the official ${{ inputs.template-repository }}"
+        branch: update/${{ inputs.branch-name || github.run_id }}
+        commit-message: "chore(deps): updating the templates inline with the official ${{ inputs.template-repository }}"
+        delete-branch: true
+        title: "${{ inputs.pull-request-title }} | [UPDATE] - Updating Templates inline with ${{ inputs.template-repository }}"
+        token: ${{ github.token }}
