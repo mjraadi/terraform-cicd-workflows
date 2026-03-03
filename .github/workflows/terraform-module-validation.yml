@@ -3,8 +3,8 @@ name: Terraform Module Validation
 on:
   workflow_call:
     secrets:
-      infracost-api-key:
-        description: "The API key for infracost"
+      gh-app-secret:
+        description: "App secret for GH"
         required: false
       actions-secret:
         description: "The GitHub App secret for the Actions App"
@@ -15,7 +15,7 @@ on:
 
     inputs:
       cicd-repository:
-        default: "appvia/appvia-cicd-workflows"
+        default: "mjraadi/terraform-cicd-workflows"
         description: "The repository to pull the CI/CD workflows from"
         required: false
         type: string
@@ -25,18 +25,6 @@ on:
         description: "The branch to pull the CI/CD workflows from"
         required: false
         type: string
-
-      enable-infracost:
-        default: false
-        description: "Whether to run infracost on the Terraform Plan (secrets.infracost-api-key must be set if enabled)"
-        required: false
-        type: boolean
-
-      enable-commitlint:
-        default: true
-        description: "Whether to run commitlint on the commit message"
-        required: false
-        type: boolean
 
       enable-checkov:
         default: true
@@ -63,7 +51,7 @@ on:
         type: number
 
       organization-name:
-        default: "appvia"
+        default: "mjraadi"
         description: "The name of the GitHub organization"
         required: false
         type: string
@@ -93,7 +81,7 @@ on:
         type: string
 
       trivy-version:
-        default: "v0.56.2"
+        default: "v0.67.0"
         description: "The version of trivy to use"
         required: false
         type: string
@@ -168,7 +156,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Terraform Bootstrap
         id: bootstrap
-        uses: appvia/appvia-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
+        uses: mjraadi/terraform-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
         with:
           actions-id: ${{ secrets.actions-id }}
           actions-secret: ${{ secrets.actions-secret }}
@@ -200,7 +188,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Terraform Bootstrap
         id: bootstrap
-        uses: appvia/appvia-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
+        uses: mjraadi/terraform-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
         with:
           actions-id: ${{ secrets.actions-id }}
           actions-secret: ${{ secrets.actions-secret }}
@@ -231,7 +219,7 @@ jobs:
           node-version: ${{ inputs.node-version }}
       - name: Terraform Bootstrap
         id: bootstrap
-        uses: appvia/appvia-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
+        uses: mjraadi/terraform-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
         with:
           actions-id: ${{ secrets.actions-id }}
           actions-secret: ${{ secrets.actions-secret }}
@@ -259,7 +247,7 @@ jobs:
           node-version: ${{ inputs.node-version }}
       - name: Terraform Bootstrap
         id: bootstrap
-        uses: appvia/appvia-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
+        uses: mjraadi/terraform-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
         with:
           actions-id: ${{ secrets.actions-id }}
           actions-secret: ${{ secrets.actions-secret }}
@@ -292,7 +280,7 @@ jobs:
           fi
       - name: Terraform Bootstrap
         id: bootstrap
-        uses: appvia/appvia-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
+        uses: mjraadi/terraform-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
         with:
           actions-id: ${{ secrets.actions-id }}
           actions-secret: ${{ secrets.actions-secret }}
@@ -329,7 +317,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Terraform Bootstrap
         id: bootstrap
-        uses: appvia/appvia-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
+        uses: mjraadi/terraform-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
         with:
           actions-id: ${{ secrets.actions-id }}
           actions-secret: ${{ secrets.actions-secret }}
@@ -370,7 +358,7 @@ jobs:
           node-version: ${{ inputs.node-version }}
       - name: Terraform Bootstrap
         id: bootstrap
-        uses: appvia/appvia-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
+        uses: mjraadi/terraform-cicd-workflows/.github/actions/terraform-bootstrap-noauth@main
         with:
           actions-id: ${{ secrets.actions-id }}
           actions-secret: ${{ secrets.actions-secret }}
@@ -472,7 +460,6 @@ jobs:
       run:
         working-directory: ${{ inputs.working-directory }}
     needs:
-      - commitlint
       - terraform-docs
       - terraform-format
       - terraform-init
@@ -508,7 +495,6 @@ jobs:
             * 🤖 <b>Terraform Validation:</b>           \`${{ needs.terraform-validate.outputs.result }}\`
             * 🤖 <b>Terraform Example Validation:</b>   \`${{ needs.terraform-validate-examples.outputs.result }}\`
             * 📖 <b>Terraform Documentation:</b>        \`${{ needs.terraform-docs.outputs.result }}\`
-            * 🔖 <b>Commitlint:</b>                     \`${{ needs.commitlint.outputs.result }}\`
 
             *<b>Working Directory:</b> \`${{ inputs.working-directory }}\`*
             *<b>Pusher:</b> @${{ github.actor }}, <b>Action:</b> \`${{ github.event_name }}\`*

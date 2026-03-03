@@ -6,7 +6,7 @@ plugin "aws" {
 
 rule "aws_resource_missing_tags" {
   enabled = true
-  tags    = ["Product", "Environment", "Owner"]
+  tags    = ["customer", "project", "environment", "stack"]
   exclude = []
 }
 

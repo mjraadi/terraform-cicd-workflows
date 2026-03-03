@@ -22,7 +22,7 @@ on:
 
 jobs:
   release:
-    uses: appvia/appvia-cicd-workflows/.github/workflows/terraform-module-release.yml@main
+    uses: mjraadi/terraform-cicd-workflows/.github/workflows/terraform-module-release.yml@main
     name: GitHub Release
 ```
 
